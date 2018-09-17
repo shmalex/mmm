@@ -18,6 +18,13 @@
  2. работа с базой
  https://node-postgres.com/
 
+
+ чтобы запустить проект нужно скопировать из Excel One drive user pass.
+ и в командной строке запустить node stock-load.js
+
+ программа будет загружать недостоющие данные из интернета.
+ программу можно всегда прервать и запустить заново.
+
 */
 const https = require('https');
 const sleep = require('sleep');
