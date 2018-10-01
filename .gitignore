@@ -1,1 +1,6 @@
 /src/node_modules/**
+src/py/charts/**
+src/py/charts_mid/**
+src/py/charts_small/**
+src/py/stats/**
+src/py/stocks/**
