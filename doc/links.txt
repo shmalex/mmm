@@ -1,0 +1,15 @@
+data source links
+
+Stock, Futures, and Forex Market Data
+https://www.barchart.com/ondemand/free-market-data-api
+
+
+
+Thats cool API's!
+
+https://financialmodelingprep.com/developer/docs
+
+
+Free, looks like the best option! 
+https://iextrading.com/developer/
+https://iextrading.com/developer/docs/
