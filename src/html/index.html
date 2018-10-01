@@ -6,24 +6,151 @@
     <!-- jQuery-->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
+
+    <!-- 
+        read this documentation
+        https://underscorejs.org/#filter -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
 </head>
 
 <body>
 
     <!-- button to trigger action -->
-    <button id="get_data_button">GetData</button>
+    <button id="get_data_button">Load Symbols</button>
+
+    <select id="symbols-select">
+    </select>
+
+    <br />
+
+    <input type="text" id="input_symbol" />
+    <button id="get_data_text">Load Symbols</button>
+
+    <table id="price-table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Close</th>
+                <th>Volume</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
 
     <script type="text/javascript">
-        // 
-        $('#get_data_button').on('click', function (event) {
-            console.log('asd');
-            $.get('https://api.iextrading.com/1.0/stock/aapl/chart/1d', function (data) {
-                _.each(data, function (e) {
-                    console.log(e['high'])
+        $(document).ready(function () {
+            $("#symbols-select").on('change', function (el) {
+                // print symbol value
+                console.log(this.value);
+                symbol = this.value;
+                load_data(symbol, render_data);
+            });
+            // On Button click
+            $('#get_data_button').on('click', function (event) {
+                // AJAX request for all symbols
+                console.log('loading symbols');
+                $.get('https://api.iextrading.com/1.0/ref-data/symbols', function (data) {
+                    /*
+                    Key	Description
+                    symbol	refers to the symbol represented in Nasdaq Integrated symbology (INET).
+                    name	refers to the name of the company or security.
+                    date	refers to the date the symbol reference data was generated.
+                    isEnabled	will be true if the symbol is enabled for trading on IEX.
+                    type	refers to the common issue type (AD - ADR
+                    RE - REIT
+                    CE - Closed end fund
+                    SI - Secondary Issue
+                    LP - Limited Partnerships
+                    CS - Common Stock
+                    ET - ETF)
+                    iexId	unique ID applied by IEX to track securities through symbol changes.
+                    */
+
+                    // fillter ETF, CE from
+                    filtered = _.filter(data, function (symbol) {
+                        return symbol['type'] !== 'et' && symbol['type'] !== 'ce';
+                    });
+
+                    // generate html
+                    elements = [];
+                    _.each(filtered, function (symbol) {
+                        elements.push(`<option value="${symbol['symbol']}">${symbol['symbol']}-${symbol['name'].substr(0, 40)}</option>`);
+                    });
+
+                    // attach new elements to dom
+                    // 1. select element
+                    select = $('#symbols-select');
+                    // 2. make it empty
+                    select.empty()
+                    // 3. create elements new html by joining all array elements into one string
+                    options = $(elements.join(''));
+                    select.append(options);
+
+                });;
+            })
+
+            $('#get_data_text').on('click', function (e) {
+                symbol = $('#input_symbol').val();
+                // call loader function and pass the link to render function
+                load_data(symbol, render_data);
+            });
+
+            function load_data(symbol, callback) {
+                console.log('loading symbol data for ' + symbol);
+                // request current stock price
+                $.get(`https://api.iextrading.com/1.0/stock/${symbol}/chart/1d`, function (data) {
+                    console.log(data.length);
+                    // call our linked function
+                    callback(data);
                 });
-            });;
-        })
+            };
+
+            function render_data(data) {
+                /*
+                        date: "20180928",
+                        minute: "09:30",
+                        label: "09:30 AM",
+                        high: 225.23,
+                        low: 224.765,
+                        average: 225.092,
+                        volume: 6362,
+                        notional: 1432035.285,
+                        numberOfTrades: 60,
+                        marketHigh: 225.28,
+                        marketLow: 224.69,
+                        marketAverage: 224.881,
+                        marketVolume: 689620,
+                        marketNotional: 155082351.8737,
+                        marketNumberOfTrades: 1546,
+                        open: 224.765,
+                        close: 225.135,
+                        marketOpen: 224.79,
+                        marketClose: 225.1,
+                        changeOverTime: 0,
+                        marketChangeOverTime: 0
+                    */
+                // generate table
+                rows = []
+                // each data point
+                _.each(data, function (e) {
+                    rows.push(`<tr><td>${e['date']}-${e['label']}</td>
+                        <td>${e['open']}</td>
+                        <td>${e['high']}</td>
+                        <td>${e['low']}</td>
+                        <td>${e['close']}</td>
+                        <td>${e['volume']}</td></tr>`);
+                });
+                tbody = $('#price-table tbody');
+                tbody.empty();
+                eRows = $(rows.join(''));
+                tbody.append(eRows);
+            }
+        });
     </script>
 </body>
 
