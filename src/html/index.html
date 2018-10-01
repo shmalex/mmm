@@ -73,7 +73,7 @@
 
                     // fillter ETF, CE from
                     filtered = _.filter(data, function (symbol) {
-                        return symbol['type'] !== 'et' && symbol['type'] !== 'ce';
+                        return symbol['type'] !== 'et' && symbol['type'] !== 'ce' && symbol['type'] !== 'N/A';
                     });
 
                     // generate html
